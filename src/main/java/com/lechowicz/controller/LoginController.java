@@ -1,10 +1,13 @@
 package com.lechowicz.controller;
 
+import com.lechowicz.dao.DataSourceReader;
 import com.lechowicz.dao.UserDAO;
 import com.lechowicz.dao.UserJDBCDAO;
+import com.lechowicz.exception.DatabaseException;
 import com.lechowicz.exception.NoUserException;
 import com.lechowicz.exception.ReadException;
 import com.lechowicz.model.User;
+import org.postgresql.ds.PGSimpleDataSource;
 
 import javax.servlet.RequestDispatcher;
 import javax.servlet.ServletException;
@@ -23,7 +26,15 @@ public class LoginController extends HttpServlet {
     @Override
     public void init() throws ServletException {
         super.init();
-        dao = new UserJDBCDAO();
+        PGSimpleDataSource dataSource = null;
+
+        try {
+            dataSource = DataSourceReader.getDataSource("src/main/resources/database.properties");
+        } catch (IOException e) {
+            throw new DatabaseException(e.getMessage());
+        }
+
+        dao = new UserJDBCDAO(dataSource);
     }
 
     @Override
